@@ -2,9 +2,10 @@ import io
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
+from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build
 
-SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-
+# function i used to figure out how the api works
 def download_files(service, folder_id):
     results = service.files().list(q=f"'{folder_id}' in parents and trashed=false and mimeType != 'application/vnd.google-apps.folder'", fields="nextPageToken, files(id, name)").execute()
     items = results.get('files', [])
@@ -18,13 +19,19 @@ def download_files(service, folder_id):
             status, done = downloader.next_chunk()
             print(f"Download {int(status.progress() * 100)}.")
         fh.seek(0)
-        with open('temp_output/' + item['name'], 'wb') as f:
+        with open('test_output/' + item['name'], 'wb') as f:
             f.write(fh.read())
 
-creds = service_account.Credentials.from_service_account_file(
-    'credentials.json', scopes=SCOPES)
 
-service = build('drive', 'v3', credentials=creds)
-
-folder_id = '11_Le0LIIPHquOqa7kJ5Z3TC2AghkuGIT'
-download_files(service, folder_id)
+def rename_files(service, folder_id):
+    results = service.files().list(q=f"'{folder_id}' in parents and trashed=false and mimeType != 'application/vnd.google-apps.folder'", fields="nextPageToken, files(id, name)").execute()
+    items = results.get('files', [])
+    for item in items:
+        print(f"Renaming file: {item['name']}")
+        new_name = input("Enter new name for the file: ")
+        file_metadata = {'name': new_name}
+        try:
+            service.files().update(fileId=item['id'], body=file_metadata).execute()
+            print(f"File renamed to {new_name}")
+        except HttpError as error:
+            print(f"An error occurred: {error}")
