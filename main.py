@@ -1,10 +1,9 @@
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from drive_access import rename_files, download_files, SCOPES
+from drive_access import rename_files, SCOPES
 
 # Gets credentials from file
-creds = service_account.Credentials.from_service_account_file(
-    'credentials.json', scopes=SCOPES)
+creds = service_account.Credentials.from_service_account_file('credentials.json', scopes=SCOPES)
 
 # Initializes google drive instance
 service = build('drive', 'v3', credentials=creds)
