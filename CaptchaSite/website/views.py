@@ -1,3 +1,19 @@
+from django.shortcuts import render
+from .models import Text
+
+def home_view(request):
+    # Get the URL of the image from Google Drive
+    image_id = '1YgZYt4NUOF15ZSiLUrpRxQvR5S8eA3_E'
+    url = get_image_url_from_google_drive(service, image_id=image_id)
+
+    # Get the text entered by the user
+    if request.method == 'POST':
+        text = request.POST.get('text')
+        Text.objects.create(text=text)
+
+    # Render the template with the URL of the image and the text box
+    return render(request, 'home.html', {'url': url})
+
 import io
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -6,6 +22,9 @@ from googleapiclient.errors import HttpError
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
+creds = service_account.Credentials.from_service_account_file('credentials.json', scopes=SCOPES)
+service = build('drive', 'v3', credentials=creds)
+folder_id = '11_Le0LIIPHquOqa7kJ5Z3TC2AghkuGIT'
 
 # Change to id of 'in progress' folder or subfolder
 PROGRESS_FOLDER_ID = "19YNFgPlEPOJ-j8tffE0tF-lEKmIqKx-y"
@@ -61,3 +80,13 @@ def move_file_to_folder(service, file_id, folder_id):
     except HttpError as error:
         print(f"An error occurred: {error}")
         return None
+
+
+def get_image_url_from_google_drive(service, image_id):
+
+    # Get the URL of the image from Google Drive
+    file = service.files().get(fileId=image_id, fields='webContentLink').execute()
+    url = file.get('webContentLink')
+
+    # Return the URL of the image
+    return url

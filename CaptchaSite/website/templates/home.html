@@ -1,0 +1,7 @@
+<img src="{{ url }}" alt="Image">
+
+<form method="post">
+  {% csrf_token %}
+  <textarea name="text"></textarea>
+  <button type="submit">Submit</button>
+</form>
