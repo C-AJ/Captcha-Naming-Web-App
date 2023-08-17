@@ -1,7 +1,11 @@
-<img src="{{ url }}" alt="Image">
+<img src="{{ url }}" alt="Image" id="{{ image_id }}">
 
 <form method="post">
   {% csrf_token %}
   <textarea name="text"></textarea>
   <button type="submit">Submit</button>
+</form>
+
+<form action="/rename_file">
+  <button id="stat-btn" class="btn">Skip</button>
 </form>

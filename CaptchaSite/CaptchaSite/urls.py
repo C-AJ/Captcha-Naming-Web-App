@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.urls import path
 from website.views import home_view
+from website import views
 
 urlpatterns = [
     path('', home_view, name='home'),
+    # path('rename_file', views.rename_file(views.service, home_view))
 ]
 
