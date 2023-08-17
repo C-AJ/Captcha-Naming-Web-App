@@ -15,11 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from website.views import home_view
+from website.views import home_view, rename_file
 from website import views
 
 urlpatterns = [
     path('', home_view, name='home'),
-    # path('rename_file', views.rename_file(views.service, home_view))
+    path('rename_file/<str:image_id>/', rename_file)
 ]
 

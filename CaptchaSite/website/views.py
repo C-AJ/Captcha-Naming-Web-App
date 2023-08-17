@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Text
+from django.http import HttpResponse
 
 def home_view(request): #TODO: add skip button
     # Get the URL of the image from Google Drive
@@ -11,7 +12,8 @@ def home_view(request): #TODO: add skip button
     # Get the text entered by the user
     if request.method == 'POST':
         text = request.POST.get('text')
-        Text.objects.create(text=text)
+        # Text.objects.create(text=text)
+        rename_file(service, image_id, text)
 
     context = {'url': url, 'image_id': image_id}
 
@@ -69,9 +71,15 @@ def rename_files(service, folder_id):
         else:
             print("\nSuccess!")
 
-def rename_file(service, file_id):
-    #TODO: implement single renaming
-    pass
+def rename_file(service, image_id, solution):
+    image = service.files().get(fileId=image_id, fields='name, id').execute()
+    image_metadata = {"name": solution}
+    try:
+        service.files().update(fileId=image["id"], body=image_metadata).execute()
+        move_file_to_folder(service, file_id=image['id'], folder_id=DESTINATION_ID)
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+    return HttpResponse('it worked')
 
 
 # Function that moves file to destination folder. Does not require origin parameter
