@@ -2,10 +2,13 @@
 
 <form method="post">
   {% csrf_token %}
+  <input type="hidden" name="current_id" value="{{ image_id }}">
   <textarea name="text"></textarea>
-  <button type="submit">Submit</button>
+  <input class="btn btn-primary" type="submit" name="rename" value="submit" />
 </form>
 
-<form action="/rename_file">
-  <button id="stat-btn" class="btn">Skip</button>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="current_id" value="{{ image_id }}">
+  <input class="btn btn-primary" type="submit" name="skip" value="skip" />
 </form>

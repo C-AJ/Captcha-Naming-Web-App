@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Text
 from django.http import HttpResponse
+from django.shortcuts import redirect
 
 def home_view(request): #TODO: add skip button
     # Get the URL of the image from Google Drive
@@ -10,10 +11,15 @@ def home_view(request): #TODO: add skip button
     url = get_image_url_from_google_drive(service, image_id=image_id)
 
     # Get the text entered by the user
-    if request.method == 'POST':
+    if 'rename' in request.POST:
         text = request.POST.get('text')
-        # Text.objects.create(text=text)
-        rename_file(service, image_id, text)
+        current_data = request.POST.get('current_id')
+        rename_file(service, current_data, text)
+        return redirect('home')
+    if 'skip' in request.POST:
+        print("skipped")
+        return redirect('home')
+        
 
     context = {'url': url, 'image_id': image_id}
 
@@ -35,12 +41,9 @@ service = build('drive', 'v3', credentials=creds)
 # Change to id of 'origin' folder
 ORIGIN_ID = '11_Le0LIIPHquOqa7kJ5Z3TC2AghkuGIT'
 # Change to id of 'in progress' folder or subfolder
-PROGRESS_FOLDER_ID = "19YNFgPlEPOJ-j8tffE0tF-lEKmIqKx-y"
+TRASH_ID = "19YNFgPlEPOJ-j8tffE0tF-lEKmIqKx-y"
 # Change to id of 'renamed' folder or subfolder
 DESTINATION_ID = "1ZOFhIKBaM_3X7NvU1n8kfSjFIIcdPXc6"
-
-def recall_id(id):
-    return id
 
 def rename_files(service, folder_id):
     # gets a list of all the files in the folder that aren't subfolders
@@ -52,7 +55,7 @@ def rename_files(service, folder_id):
     else:
         # iterates through every file asks the user to rename it
         for item in items:
-            move_file_to_folder(service, file_id=item["id"], folder_id=PROGRESS_FOLDER_ID)
+            move_file_to_folder(service, file_id=item["id"], folder_id=TRASH_ID)
             # TODO: add display_image() here
             print(f"Renaming file: {item['name']}")
             new_name = input("Enter new name for the file: ")
@@ -79,6 +82,7 @@ def rename_file(service, image_id, solution):
         move_file_to_folder(service, file_id=image['id'], folder_id=DESTINATION_ID)
     except HttpError as error:
         print(f"An error occurred: {error}")
+    print("successfully renamed")
     return HttpResponse('it worked')
 
 
@@ -113,7 +117,7 @@ def get_id(service, origin_id):
                              fields="nextPageToken, files(id, name)").execute()
     items = results.get("files", [])
     if not items:
-        return
+        return None
     else:
         random_file = random.choice(items)
         return random_file['id']
