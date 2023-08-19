@@ -3,7 +3,7 @@
 <form method="post">
   {% csrf_token %}
   <input type="hidden" name="current_id" value="{{ image_id }}">
-  <textarea name="text"></textarea>
+  {{ form.as_p }}
   <input class="btn btn-primary" type="submit" name="rename" value="submit" />
 </form>
 

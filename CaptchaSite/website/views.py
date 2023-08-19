@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Text
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from .forms import SolveCaptcha 
 
 def home_view(request):
     # Get the URL of the image from Google Drive
@@ -10,9 +11,9 @@ def home_view(request):
         return render(request, 'finished.html')
     url = get_image_url_from_google_drive(service, image_id=image_id)
 
-    # Get the text entered by the user
     if 'rename' in request.POST:
-        text = request.POST.get('text')
+        # get text from django form
+        text = request.POST.get('solution')
         current_id = request.POST.get('current_id')
         rename_file(service, current_id, text)
         return redirect('home')
@@ -23,7 +24,8 @@ def home_view(request):
         return redirect('home')
         
 
-    context = {'url': url, 'image_id': image_id}
+    form = SolveCaptcha()
+    context = {'url': url, 'image_id': image_id, 'form': form}
 
     # Render the template with the URL of the image and the text box
     return render(request, 'home.html', context)
