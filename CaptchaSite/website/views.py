@@ -3,7 +3,7 @@ from .models import Text
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
-def home_view(request): #TODO: add skip button
+def home_view(request):
     # Get the URL of the image from Google Drive
     image_id = get_id(service, ORIGIN_ID)
     if not image_id:
@@ -13,10 +13,12 @@ def home_view(request): #TODO: add skip button
     # Get the text entered by the user
     if 'rename' in request.POST:
         text = request.POST.get('text')
-        current_data = request.POST.get('current_id')
-        rename_file(service, current_data, text)
+        current_id = request.POST.get('current_id')
+        rename_file(service, current_id, text)
         return redirect('home')
     if 'skip' in request.POST:
+        current_id = request.POST.get('current_id')
+        move_file_to_folder(service, current_id, TRASH_ID)
         print("skipped")
         return redirect('home')
         
@@ -56,7 +58,6 @@ def rename_files(service, folder_id):
         # iterates through every file asks the user to rename it
         for item in items:
             move_file_to_folder(service, file_id=item["id"], folder_id=TRASH_ID)
-            # TODO: add display_image() here
             print(f"Renaming file: {item['name']}")
             new_name = input("Enter new name for the file: ")
             # gets new name provided by user
@@ -70,7 +71,6 @@ def rename_files(service, folder_id):
                 print("")
             except HttpError as error:
                 print(f"An error occurred: {error}")
-            # TODO: move files to renamed folder
         else:
             print("\nSuccess!")
 
