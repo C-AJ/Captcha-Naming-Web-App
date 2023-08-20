@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from .forms import SolveCaptcha 
 
+# main view of site
 def home_view(request):
     # Get the URL of the image from Google Drive
     image_id = get_id(service, ORIGIN_ID)
@@ -44,38 +45,12 @@ service = build('drive', 'v3', credentials=creds)
 
 # Change to id of 'origin' folder
 ORIGIN_ID = '11_Le0LIIPHquOqa7kJ5Z3TC2AghkuGIT'
-# Change to id of 'in progress' folder or subfolder
+# Change to id of 'trash' folder or subfolder
 TRASH_ID = "19YNFgPlEPOJ-j8tffE0tF-lEKmIqKx-y"
 # Change to id of 'renamed' folder or subfolder
 DESTINATION_ID = "1ZOFhIKBaM_3X7NvU1n8kfSjFIIcdPXc6"
 
-def rename_files(service, folder_id):
-    # gets a list of all the files in the folder that aren't subfolders
-    results = service.files().list(q=f"'{folder_id}' in parents and trashed=false and mimeType != 'application/vnd.google-apps.folder'",
-                             fields="nextPageToken, files(id, name)").execute()
-    items = results.get("files", [])
-    if not items:
-        print("No files present")
-    else:
-        # iterates through every file asks the user to rename it
-        for item in items:
-            move_file_to_folder(service, file_id=item["id"], folder_id=TRASH_ID)
-            print(f"Renaming file: {item['name']}")
-            new_name = input("Enter new name for the file: ")
-            # gets new name provided by user
-            file_metadata = {"name": new_name}
-            try:
-                # attempts to process name changes onto google drive
-                service.files().update(fileId=item["id"], body=file_metadata).execute()
-                print(f"File renamed to {new_name}")
-                move_file_to_folder(service, file_id=item["id"], folder_id=DESTINATION_ID)
-                print("File Successfully Moved.")
-                print("")
-            except HttpError as error:
-                print(f"An error occurred: {error}")
-        else:
-            print("\nSuccess!")
-
+# Renames file and moves it to success folder
 def rename_file(service, image_id, solution):
     image = service.files().get(fileId=image_id, fields='name, id').execute()
     image_metadata = {"name": solution}
@@ -86,7 +61,6 @@ def rename_file(service, image_id, solution):
         print(f"An error occurred: {error}")
     print("successfully renamed")
     return HttpResponse('it worked')
-
 
 # Function that moves file to destination folder. Does not require origin parameter
 def move_file_to_folder(service, file_id, folder_id):
@@ -104,7 +78,7 @@ def move_file_to_folder(service, file_id, folder_id):
         print(f"An error occurred: {error}")
         return None
 
-
+# Gets image url from image id to be able to display it
 def get_image_url_from_google_drive(service, image_id):
 
     # Get the URL of the image from Google Drive
@@ -114,6 +88,7 @@ def get_image_url_from_google_drive(service, image_id):
     # Return the URL of the image
     return url
 
+# Gets random file and returns its id
 def get_id(service, origin_id):
     results = service.files().list(q=f"'{origin_id}' in parents and trashed=false and mimeType != 'application/vnd.google-apps.folder'",
                              fields="nextPageToken, files(id, name)").execute()
