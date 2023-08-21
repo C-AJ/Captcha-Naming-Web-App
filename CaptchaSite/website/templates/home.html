@@ -1,0 +1,10 @@
+<div class="container">
+  <img src="{{ url }}" alt="Image">
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="current_id" value="{{ image_id }}">
+    {{ form.as_p }}
+    <input class="btn btn-primary" type="submit" name="rename" value="submit" />
+    <input class="btn btn-primary" type="submit" formnovalidate name="skip" value="skip" />
+  </form>
+</div>
