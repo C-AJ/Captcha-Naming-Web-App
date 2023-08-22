@@ -44,11 +44,11 @@ creds = service_account.Credentials.from_service_account_file('credentials.json'
 service = build('drive', 'v3', credentials=creds)
 
 # Change to id of 'origin' folder
-ORIGIN_ID = '11_Le0LIIPHquOqa7kJ5Z3TC2AghkuGIT'
+ORIGIN_ID = '145z3ZP1L2_cFyRbXalgigy9rTTCUNkNz'
 # Change to id of 'trash' folder or subfolder
-TRASH_ID = "19YNFgPlEPOJ-j8tffE0tF-lEKmIqKx-y"
+TRASH_ID = "1ypsQ-dwUS1h0QdK_DTWdJaWAikksQLfg"
 # Change to id of 'renamed' folder or subfolder
-DESTINATION_ID = "1ZOFhIKBaM_3X7NvU1n8kfSjFIIcdPXc6"
+DESTINATION_ID = "1K2hMP4eWAbAxAfdZ_7nQRYFEk3spVCYC"
 
 # Renames file and moves it to success folder
 def rename_file(service, image_id, solution):
