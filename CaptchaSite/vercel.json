@@ -1,13 +1,27 @@
 {
-    "builds": [{
-        "src": "CaptchaSite/wsgi.py",
+    "version": 2,
+    "builds": [
+      {
+        "src": "CaptchaSite/CaptchaSite/wsgi.py",
         "use": "@vercel/python",
         "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
-    }],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "CaptchaSite/wsgi.py"
+      },
+      {
+        "src": "build_files.sh",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "staticfiles_build"
         }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/static/(.*)",
+        "dest": "/static/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "CaptchaSite/CaptchaSite/wsgi.py"
+      }
     ]
-}
+  }
