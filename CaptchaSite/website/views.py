@@ -17,6 +17,7 @@ def home_view(request):
         text = request.POST.get('solution')
         current_id = request.POST.get('current_id')
         rename_file(service, current_id, text)
+        move_file_to_folder(service, current_id, folder_id=DESTINATION_ID)
         return redirect('home')
     if 'skip' in request.POST:
         current_id = request.POST.get('current_id')
@@ -49,6 +50,8 @@ ORIGIN_ID = '145z3ZP1L2_cFyRbXalgigy9rTTCUNkNz'
 TRASH_ID = "1ypsQ-dwUS1h0QdK_DTWdJaWAikksQLfg"
 # Change to id of 'renamed' folder or subfolder
 DESTINATION_ID = "1K2hMP4eWAbAxAfdZ_7nQRYFEk3spVCYC"
+# Change to id of 'limbo' folder or subfolder
+LIMBO_ID = "1OLsxl_OBkRCU_k1vqO7rBTCjGsoLzCrj"
 
 # Renames file and moves it to success folder
 def rename_file(service, image_id, solution):
@@ -56,7 +59,6 @@ def rename_file(service, image_id, solution):
     image_metadata = {"name": solution}
     try:
         service.files().update(fileId=image["id"], body=image_metadata).execute()
-        move_file_to_folder(service, file_id=image['id'], folder_id=DESTINATION_ID)
     except HttpError as error:
         print(f"An error occurred: {error}")
     print("successfully renamed")
