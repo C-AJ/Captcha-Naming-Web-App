@@ -16,12 +16,15 @@ def home_view(request):
         # get text from django form
         text = request.POST.get('solution')
         current_id = request.POST.get('current_id')
-        rename_file(service, current_id, text)
-        move_file_to_folder(service, current_id, folder_id=DESTINATION_ID)
+        move_file_to_folder(service, current_id, folder_id=LIMBO_ID)
+        rename_file(service, current_id, text, append=True)
+        valid = check_validity(service, current_id, default=text)
+        if valid:
+            move_file_to_folder(service, current_id, folder_id=DESTINATION_ID)
+        else:
+            move_file_to_folder(service, current_id, folder_id=ORIGIN_ID)
         return redirect('home')
-    if 'skip' in request.POST:
-        current_id = request.POST.get('current_id')
-        move_file_to_folder(service, current_id, TRASH_ID)
+    if 'skip' in request.POST: #* skipping re-randomizes the captcha selection
         print("skipped")
         return redirect('home')
         
@@ -45,18 +48,19 @@ creds = service_account.Credentials.from_service_account_file('credentials.json'
 service = build('drive', 'v3', credentials=creds)
 
 # Change to id of 'origin' folder
-ORIGIN_ID = '145z3ZP1L2_cFyRbXalgigy9rTTCUNkNz'
-# Change to id of 'trash' folder or subfolder
-TRASH_ID = "1ypsQ-dwUS1h0QdK_DTWdJaWAikksQLfg"
+ORIGIN_ID = '1K3aVJq0EmqMxIHAHzvfUDcSLYJNhgzry' #TODO: change this back to original folder after testing
 # Change to id of 'renamed' folder or subfolder
 DESTINATION_ID = "1K2hMP4eWAbAxAfdZ_7nQRYFEk3spVCYC"
 # Change to id of 'limbo' folder or subfolder
 LIMBO_ID = "1OLsxl_OBkRCU_k1vqO7rBTCjGsoLzCrj"
 
 # Renames file and moves it to success folder
-def rename_file(service, image_id, solution):
+def rename_file(service, image_id, solution, append: bool):
     image = service.files().get(fileId=image_id, fields='name, id').execute()
-    image_metadata = {"name": solution}
+    if append:
+        image_metadata = {"name": image["name"] + '_' + solution}
+    else:
+        image_metadata = {"name": solution}
     try:
         service.files().update(fileId=image["id"], body=image_metadata).execute()
     except HttpError as error:
@@ -79,6 +83,30 @@ def move_file_to_folder(service, file_id, folder_id):
     except HttpError as error:
         print(f"An error occurred: {error}")
         return None
+
+#todo: optimize code once it all works
+def check_validity(service, image_id, default):
+    image = service.files().get(fileId=image_id, fields='name, id').execute()
+    if len(image["name"]) > 200:
+        reset_name = f'reset-{default}.png'
+        rename_file(service, image_id, reset_name, append=False)
+        return False
+    prev_names = image["name"].split('_')
+    validated_name = find_first_dupe(prev_names)
+    if validated_name:
+        rename_file(service, image_id, validated_name, append=False)
+        return True
+    else:
+        return False
+
+def find_first_dupe(lst):
+    count = {}
+    for item in lst:
+        if item in count:
+            return item
+        else:
+            count[item] = 1
+    return None
 
 # Gets image url from image id to be able to display it
 def get_image_url_from_google_drive(service, image_id):
