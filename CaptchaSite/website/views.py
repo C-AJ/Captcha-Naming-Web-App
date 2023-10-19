@@ -16,7 +16,7 @@ def home_view(request):
         # get text from django form
         text = request.POST.get('solution')
         current_id = request.POST.get('current_id')
-        move_file_to_folder(service, current_id, folder_id=LIMBO_ID)
+        # move_file_to_folder(service, current_id, folder_id=LIMBO_ID)
         rename_file(service, current_id, text, append=True)
         valid = check_validity(service, current_id, default=text)
         if valid:
@@ -48,7 +48,7 @@ creds = service_account.Credentials.from_service_account_file('credentials.json'
 service = build('drive', 'v3', credentials=creds)
 
 # Change to id of 'origin' folder
-ORIGIN_ID = '1K3aVJq0EmqMxIHAHzvfUDcSLYJNhgzry' #TODO: change this back to original folder after testing
+ORIGIN_ID = '145z3ZP1L2_cFyRbXalgigy9rTTCUNkNz'
 # Change to id of 'renamed' folder or subfolder
 DESTINATION_ID = "1K2hMP4eWAbAxAfdZ_7nQRYFEk3spVCYC"
 # Change to id of 'limbo' folder or subfolder
@@ -84,7 +84,6 @@ def move_file_to_folder(service, file_id, folder_id):
         print(f"An error occurred: {error}")
         return None
 
-#todo: optimize code once it all works
 def check_validity(service, image_id, default):
     image = service.files().get(fileId=image_id, fields='name, id').execute()
     if len(image["name"]) > 200:
