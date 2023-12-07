@@ -50,7 +50,7 @@ service = build('drive', 'v3', credentials=creds)
 # Change to id of 'origin' folder
 ORIGIN_ID = '145z3ZP1L2_cFyRbXalgigy9rTTCUNkNz'
 # Change to id of 'renamed' folder or subfolder
-DESTINATION_ID = "1K2hMP4eWAbAxAfdZ_7nQRYFEk3spVCYC"
+DESTINATION_ID = "1kmOT0_p6HdoLWd8-_Fim0DNHzxoa8BC3"
 # Change to id of 'limbo' folder or subfolder
 LIMBO_ID = "1OLsxl_OBkRCU_k1vqO7rBTCjGsoLzCrj"
 
